@@ -1,4 +1,5 @@
 # ExcelUtil
+<<<<<<< HEAD
 用于导入导出Excel的Util包，基于Java的POI。可将List&lt;Bean>导出成Excel，或读取Excel成List&lt;Bean>,读取时有验证和Log。
 
 Apache Maven
@@ -10,3 +11,6 @@ Apache Maven
 </dependency>
 ```
 使用方式:[https://sargeraswang.com/blog/2018/11/27/excelutil-1-dot-2-1-doc/](https://sargeraswang.com/blog/2018/11/27/excelutil-1-dot-2-1-doc/)
+=======
+java excel工具
+>>>>>>> 44e24bf0c9afa099c11bc8100a6fe8ca6c693d4c

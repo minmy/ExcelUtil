@@ -24,6 +24,12 @@ public @interface ExcelCell {
      */
     int index();
 
+    String dateFormat() default "";
+
+    String writeReplace() default "";
+
+    String readReplace() default "";
+
     /**
      * 当值为null时要显示的值 default StringUtils.EMPTY
      * 

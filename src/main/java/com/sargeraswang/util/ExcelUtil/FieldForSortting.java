@@ -11,7 +11,9 @@ import java.lang.reflect.Field;
 public class FieldForSortting {
     private Field field;
     private int index;
-
+    private String fmt;
+    private String writeReplace;
+    private String readReplace;
     /**
      * @param field
      */
@@ -28,6 +30,14 @@ public class FieldForSortting {
         super();
         this.field = field;
         this.index = index;
+    }
+
+    public FieldForSortting(Field field, int index, String fmt, String writeReplace, String readReplace) {
+        this.field = field;
+        this.index = index;
+        this.fmt = fmt;
+        this.writeReplace = writeReplace;
+        this.readReplace = readReplace;
     }
 
     /**
@@ -60,4 +70,27 @@ public class FieldForSortting {
         this.index = index;
     }
 
+    public String getFmt() {
+        return fmt;
+    }
+
+    public void setFmt(String fmt) {
+        this.fmt = fmt;
+    }
+
+    public String getWriteReplace() {
+        return writeReplace;
+    }
+
+    public void setWriteReplace(String writeReplace) {
+        this.writeReplace = writeReplace;
+    }
+
+    public String getReadReplace() {
+        return readReplace;
+    }
+
+    public void setReadReplace(String readReplace) {
+        this.readReplace = readReplace;
+    }
 }

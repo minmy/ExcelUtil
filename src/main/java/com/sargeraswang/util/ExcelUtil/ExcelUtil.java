@@ -1,6 +1,8 @@
 package com.sargeraswang.util.ExcelUtil;
 
+import com.alibaba.fastjson.JSONObject;
 import org.apache.commons.beanutils.BeanComparator;
+import org.apache.commons.codec.binary.StringUtils;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.ComparatorUtils;
 import org.apache.commons.collections.comparators.ComparableComparator;
@@ -8,6 +10,7 @@ import org.apache.commons.collections.comparators.ComparatorChain;
 import org.apache.poi.hssf.usermodel.*;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellReference;
+import org.apache.poi.util.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,27 +55,27 @@ public class ExcelUtil {
      * 获取cell类型的文字描述
      *
      * @param cellType <pre>
-     *                 CellType.BLANK
-     *                 CellType.BOOLEAN
-     *                 CellType.ERROR
-     *                 CellType.FORMULA
-     *                 CellType.NUMERIC
-     *                 CellType.STRING
-     *                 </pre>
+     *                                                                 CellType.BLANK
+     *                                                                 CellType.BOOLEAN
+     *                                                                 CellType.ERROR
+     *                                                                 CellType.FORMULA
+     *                                                                 CellType.NUMERIC
+     *                                                                 CellType.STRING
+     *                                                                 </pre>
      * @return
      */
     private static String getCellTypeByInt(CellType cellType) {
-        if(cellType == CellType.BLANK)
+        if (cellType == CellType.BLANK)
             return "Null type";
-        else if(cellType == CellType.BOOLEAN)
+        else if (cellType == CellType.BOOLEAN)
             return "Boolean type";
-        else if(cellType == CellType.ERROR)
+        else if (cellType == CellType.ERROR)
             return "Error type";
-        else if(cellType == CellType.FORMULA)
+        else if (cellType == CellType.FORMULA)
             return "Formula type";
-        else if(cellType == CellType.NUMERIC)
+        else if (cellType == CellType.NUMERIC)
             return "Numeric type";
-        else if(cellType == CellType.STRING)
+        else if (cellType == CellType.STRING)
             return "String type";
         else
             return "Unknown type";
@@ -91,34 +94,32 @@ public class ExcelUtil {
             return null;
         }
         CellType cellType = cell.getCellTypeEnum();
-            if(cellType == CellType.BLANK)
-                return null;
-            else if(cellType == CellType.BOOLEAN)
-                return cell.getBooleanCellValue();
-            else if(cellType == CellType.ERROR)
-                return cell.getErrorCellValue();
-            else if(cellType == CellType.FORMULA) {
-                try {
-                    if (HSSFDateUtil.isCellDateFormatted(cell)) {
-                        return cell.getDateCellValue();
-                    } else {
-                        return cell.getNumericCellValue();
-                    }
-                } catch (IllegalStateException e) {
-                    return cell.getRichStringCellValue();
-                }
-            }
-            else if(cellType == CellType.NUMERIC){
-                if (DateUtil.isCellDateFormatted(cell)) {
+        if (cellType == CellType.BLANK)
+            return null;
+        else if (cellType == CellType.BOOLEAN)
+            return cell.getBooleanCellValue();
+        else if (cellType == CellType.ERROR)
+            return cell.getErrorCellValue();
+        else if (cellType == CellType.FORMULA) {
+            try {
+                if (HSSFDateUtil.isCellDateFormatted(cell)) {
                     return cell.getDateCellValue();
                 } else {
                     return cell.getNumericCellValue();
                 }
+            } catch (IllegalStateException e) {
+                return cell.getRichStringCellValue();
             }
-            else if(cellType == CellType.STRING)
-                return cell.getStringCellValue();
-            else
-                return null;
+        } else if (cellType == CellType.NUMERIC) {
+            if (DateUtil.isCellDateFormatted(cell)) {
+                return cell.getDateCellValue();
+            } else {
+                return cell.getNumericCellValue();
+            }
+        } else if (cellType == CellType.STRING)
+            return cell.getStringCellValue();
+        else
+            return null;
     }
 
     /**
@@ -131,7 +132,7 @@ public class ExcelUtil {
      *                javabean属性的数据类型有基本数据类型及String,Date,String[],Double[]
      * @param out     与输出设备关联的流对象，可以将EXCEL文档导出到本地文件或者网络中
      */
-    public static <T> void exportExcel(Map<String,String> headers, Collection<T> dataset, OutputStream out) {
+    public static <T> void exportExcel(Map<String, String> headers, Collection<T> dataset, OutputStream out) {
         exportExcel(headers, dataset, out, null);
     }
 
@@ -146,7 +147,7 @@ public class ExcelUtil {
      * @param out     与输出设备关联的流对象，可以将EXCEL文档导出到本地文件或者网络中
      * @param pattern 如果有时间数据，设定输出格式。默认为"yyy-MM-dd"
      */
-    public static <T> void exportExcel(Map<String,String> headers, Collection<T> dataset, OutputStream out,
+    public static <T> void exportExcel(Map<String, String> headers, Collection<T> dataset, OutputStream out,
                                        String pattern) {
         // 声明一个工作薄
         HSSFWorkbook workbook = new HSSFWorkbook();
@@ -161,7 +162,7 @@ public class ExcelUtil {
         }
     }
 
-    public static void exportExcel(String[][] datalist, OutputStream out,boolean autoColumnWidth) {
+    public static void exportExcel(String[][] datalist, OutputStream out, boolean autoColumnWidth) {
         try {
             // 声明一个工作薄
             HSSFWorkbook workbook = new HSSFWorkbook();
@@ -182,7 +183,7 @@ public class ExcelUtil {
                 }
             }
             //自动列宽
-            if(autoColumnWidth) {
+            if (autoColumnWidth) {
                 if (datalist.length > 0) {
                     int colcount = datalist[0].length;
                     for (int i = 0; i < colcount; i++) {
@@ -195,8 +196,9 @@ public class ExcelUtil {
             LG.error(e.toString(), e);
         }
     }
+
     public static void exportExcel(String[][] datalist, OutputStream out) {
-        exportExcel(datalist,out,true);
+        exportExcel(datalist, out, true);
     }
 
     /**
@@ -246,10 +248,10 @@ public class ExcelUtil {
      * @param dataset 数据集合
      * @param pattern 日期格式
      */
-    private static <T> void write2Sheet(HSSFSheet sheet, Map<String,String> headers, Collection<T> dataset,
+    private static <T> void write2Sheet(HSSFSheet sheet, Map<String, String> headers, Collection<T> dataset,
                                         String pattern) {
         //时间格式默认"yyyy-MM-dd"
-        if (isBlank(pattern)){
+        if (isBlank(pattern)) {
             pattern = "yyyy-MM-dd";
         }
         // 产生表格标题行
@@ -258,8 +260,8 @@ public class ExcelUtil {
         Set<String> keys = headers.keySet();
         Iterator<String> it1 = keys.iterator();
         String key = "";    //存放临时键变量
-        int c= 0;   //标题列数
-        while (it1.hasNext()){
+        int c = 0;   //标题列数
+        while (it1.hasNext()) {
             key = it1.next();
             if (headers.containsKey(key)) {
                 HSSFCell cell = row.createCell(c);
@@ -283,7 +285,7 @@ public class ExcelUtil {
                     int cellNum = 0;
                     //遍历列名
                     Iterator<String> it2 = keys.iterator();
-                    while (it2.hasNext()){
+                    while (it2.hasNext()) {
                         key = it2.next();
                         if (!headers.containsKey(key)) {
                             LG.error("Map 中 不存在 key [" + key + "]");
@@ -292,7 +294,7 @@ public class ExcelUtil {
                         Object value = map.get(key);
                         HSSFCell cell = row.createCell(cellNum);
 
-                        cellNum = setCellValue(cell,value,pattern,cellNum,null,row);
+                        cellNum = setCellValue(cell, value, pattern, cellNum, null, row);
 
                         cellNum++;
                     }
@@ -301,11 +303,22 @@ public class ExcelUtil {
                     int cellNum = 0;
                     for (int i = 0; i < fields.size(); i++) {
                         HSSFCell cell = row.createCell(cellNum);
-                        Field field = fields.get(i).getField();
+                        FieldForSortting fieldForSortting = fields.get(i);
+                        Field field = fieldForSortting.getField();
                         field.setAccessible(true);
                         Object value = field.get(t);
-
-                        cellNum = setCellValue(cell,value,pattern,cellNum,field,row);
+                        /** xinmy **/
+                        //替代全局的时间格式
+                        if (null != fieldForSortting.getFmt() && !fieldForSortting.getFmt().equals("")) {
+                            pattern = fieldForSortting.getFmt();
+                        }
+                        if (null != fieldForSortting.getWriteReplace() && !fieldForSortting.getWriteReplace().equals("")) {
+                            String writeReplace = fieldForSortting.getWriteReplace();
+                            Map json = JSONObject.parseObject(writeReplace, Map.class);
+                            value = json.get(value);
+                        }
+                        /****/
+                        cellNum = setCellValue(cell, value, pattern, cellNum, field, row);
 
                         cellNum++;
                     }
@@ -318,9 +331,40 @@ public class ExcelUtil {
         for (int i = 0; i < headers.size(); i++) {
             sheet.autoSizeColumn(i);
         }
+
+        // 处理中文不能自动调整列宽的问题
+        setSizeColumn(sheet, headers.size());
     }
 
-    private static int setCellValue(HSSFCell cell,Object value,String pattern,int cellNum,Field field,HSSFRow row){
+    // 自适应宽度(中文支持)
+    private static void setSizeColumn(HSSFSheet sheet, int size) {
+        for (int columnNum = 0; columnNum < size; columnNum++) {
+            int columnWidth = sheet.getColumnWidth(columnNum) / 256;
+            for (int rowNum = 0; rowNum < sheet.getLastRowNum(); rowNum++) {
+                HSSFRow currentRow;
+                //当前行未被使用过
+                if (sheet.getRow(rowNum) == null) {
+                    currentRow = sheet.createRow(rowNum);
+                } else {
+                    currentRow = sheet.getRow(rowNum);
+                }
+
+                if (currentRow.getCell(columnNum) != null) {
+                    HSSFCell currentCell = currentRow.getCell(columnNum);
+                    if (currentCell.getCellType() == HSSFCell.CELL_TYPE_STRING) {
+                        int length = currentCell.getStringCellValue().getBytes().length;
+                        if (columnWidth < length) {
+                            columnWidth = length;
+                        }
+                    }
+                }
+            }
+            sheet.setColumnWidth(columnNum, columnWidth * 256);
+        }
+    }
+
+
+    private static int setCellValue(HSSFCell cell, Object value, String pattern, int cellNum, Field field, HSSFRow row) {
         String textValue = null;
         if (value instanceof Integer) {
             int intValue = (Integer) value;
@@ -368,7 +412,7 @@ public class ExcelUtil {
         } else {
             // 其它数据类型都当作字符串简单处理
             String empty = "";
-            if(field != null) {
+            if (field != null) {
                 ExcelCell anno = field.getAnnotation(ExcelCell.class);
                 if (anno != null) {
                     empty = anno.defaultValue();
@@ -400,7 +444,7 @@ public class ExcelUtil {
         try {
             workBook = WorkbookFactory.create(inputStream);
         } catch (Exception e) {
-            LG.error("load excel file error",e);
+            LG.error("load excel file error", e);
             return null;
         }
         List<T> list = new ArrayList<>();
@@ -656,7 +700,10 @@ public class ExcelUtil {
                 continue;
             }
             int id = ec.index();
-            fields.add(new FieldForSortting(field, id));
+            String dateFormat = ec.dateFormat();
+            String writeReplace = ec.writeReplace();
+            String readReplace = ec.readReplace();
+            fields.add(new FieldForSortting(field, id, dateFormat, writeReplace, readReplace));
         }
         fields.addAll(annoNullFields);
         sortByProperties(fields, true, false, "index");
@@ -690,14 +737,14 @@ public class ExcelUtil {
         }
     }
 
-    private static boolean isBlank(String str){
-        if(str == null){
+    private static boolean isBlank(String str) {
+        if (str == null) {
             return true;
         }
         return str.length() == 0;
     }
 
-    protected static boolean isNotBlank(String str){
+    protected static boolean isNotBlank(String str) {
         return !isBlank(str);
     }
 
