@@ -55,13 +55,13 @@ public class ExcelUtil {
      * 获取cell类型的文字描述
      *
      * @param cellType <pre>
-     *                                                                 CellType.BLANK
-     *                                                                 CellType.BOOLEAN
-     *                                                                 CellType.ERROR
-     *                                                                 CellType.FORMULA
-     *                                                                 CellType.NUMERIC
-     *                                                                 CellType.STRING
-     *                                                                 </pre>
+     *                                                                                                                                 CellType.BLANK
+     *                                                                                                                                 CellType.BOOLEAN
+     *                                                                                                                                 CellType.ERROR
+     *                                                                                                                                 CellType.FORMULA
+     *                                                                                                                                 CellType.NUMERIC
+     *                                                                                                                                 CellType.STRING
+     *                                                                                                                                 </pre>
      * @return
      */
     private static String getCellTypeByInt(CellType cellType) {
@@ -315,7 +315,7 @@ public class ExcelUtil {
                         if (null != fieldForSortting.getWriteReplace() && !fieldForSortting.getWriteReplace().equals("")) {
                             String writeReplace = fieldForSortting.getWriteReplace();
                             Map json = JSONObject.parseObject(writeReplace, Map.class);
-                            value = json.get(value);
+                            value = json.get(String.valueOf(value));
                         }
                         /****/
                         cellNum = setCellValue(cell, value, pattern, cellNum, field, row);
@@ -540,11 +540,17 @@ public class ExcelUtil {
                                 // 处理特殊情况,Excel中的String,转换成Bean的Date
                                 if (field.getType().equals(Date.class)
                                         && cell.getCellTypeEnum() == CellType.STRING) {
+                                    ExcelCell excelCell = field.getAnnotation(ExcelCell.class);
+                                    String fmt = excelCell.dateFormat();
+                                    if (null != fmt && !"".equals(fmt)) {
+                                        pattern = fmt;
+                                    }
                                     Object strDate = getCellValue(cell);
                                     try {
-                                        value = new SimpleDateFormat(pattern).parse(strDate.toString());
+                                        if (null != strDate) {
+                                            value = new SimpleDateFormat(pattern).parse(strDate.toString());
+                                        }
                                     } catch (ParseException e) {
-
                                         errMsg =
                                                 MessageFormat.format("the cell [{0}] can not be converted to a date ",
                                                         CellReference.convertNumToColString(cell.getColumnIndex()));
@@ -557,7 +563,18 @@ public class ExcelUtil {
                                             && isNotBlank(annoCell.defaultValue())) {
                                         value = annoCell.defaultValue();
                                     }
+                                    if (isNotBlank(annoCell.readReplace())) {
+                                        String readReplace = annoCell.readReplace();
+                                        Map json = JSONObject.parseObject(readReplace, Map.class);
+                                        value = json.get(value);
+                                    }
+
                                 }
+                                /**************xinm*****************/
+                                if (field.getType().equals(Long.class) && cell.getCellTypeEnum() == CellType.NUMERIC) {
+                                    value = new Double(cell.getNumericCellValue()).longValue();
+                                }
+                                /***********************************/
                                 field.set(t, value);
                             }
                             if (isNotBlank(errMsg)) {
